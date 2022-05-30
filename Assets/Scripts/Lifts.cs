@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using UnityEngine;
 using DG.Tweening;
+using TMPro;
+using UnityEngine.UI;
 
 public class Lifts : MonoBehaviour
 {
@@ -10,31 +13,37 @@ public class Lifts : MonoBehaviour
     public MoveController moveController;
     public GameObject platform;
     public int level = 1;
+    public TextMeshProUGUI textCount;
+    private int count=0;
 
     public void Awake()
     {
+        liftPoint = -1;
         moveController = GameObject.FindObjectOfType<MoveController>();
+        textCount=GameObject.FindObjectOfType<TextMeshProUGUI>();
+        SetTextCount();
+
+
     }
 
     private void Update()
     {
         
-            if (liftPoint==10)
+            if (liftPoint>=10)
             {
-                platform.transform.DOLocalMoveY(0.761322f, 10f).SetEase(Ease.InQuad).OnComplete(()=>continueGame());
+                
+                platform.transform.DOLocalMoveY(0.761322f, 0.05f).SetEase(Ease.InQuad).OnComplete(()=>continueGame());
             }
             
     }
 
     public void continueGame()
     {
+        moveController.isMove = true; 
         
-        moveController.isMove = true;
-        level++;
-        if (level == 3 )
-        {
-            moveController.isMove = false;
-        }
+        
+        
+       
     }
 
     private void OnTriggerEnter(Collider other)
@@ -42,18 +51,23 @@ public class Lifts : MonoBehaviour
         if(CompareTag("lift"))
         {
             liftPoint++;
-            
-        }
-        if (other.gameObject.tag=="Ball")
-        {
-            Destroy(other);
-        }
+            count = liftPoint;
+            SetTextCount();
 
+        }
         
-        
-     
-
     }
 
+    private void OnCollisionEnter(Collision coll)
+    {
+        if (coll.gameObject.tag == "Ball")
+        {
+            Destroy(coll.gameObject);
+        }
+    }
 
+    private void SetTextCount()
+    {
+        textCount.text = "Balls" + count.ToString() + "/10";
+    }
 }
